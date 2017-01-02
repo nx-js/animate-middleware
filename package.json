@@ -1,0 +1,24 @@
+{
+  "name": "@nx-js/animate-middleware",
+  "version": "1.0.0",
+  "description": "An NX animation middleware, based on standrad CSS animations.",
+  "main": "animate.js",
+  "author": {
+    "name": "Miklos Bertalan",
+    "email": "miklos.bertalan@risingstack.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nx-js/animate-middleware.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nx-js/animate-middleware/issues"
+  },
+  "homepage": "http://nx-framework.com",
+  "license": "MIT",
+  "keywords": [
+    "nx",
+    "middleware",
+    "animation"
+  ]
+}
