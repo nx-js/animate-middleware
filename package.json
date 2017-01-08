@@ -20,5 +20,8 @@
     "nx",
     "middleware",
     "animation"
-  ]
+  ],
+  "peerDependencies": {
+    "@nx-js/attributes-middleware": "^1.0.0"
+  }
 }
