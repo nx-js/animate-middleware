@@ -8,7 +8,7 @@ The `animate` middleware allows you to create entering, leaving and moving anima
 - processes: element nodes
 - throws on: nothing
 - use as: component or content middleware
-- [docs](http://nx-framework/docs/middlewares/animate)
+- [docs](http://nx-framework.com/docs/middlewares/animate)
 
 ## Installation
 
