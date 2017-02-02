@@ -114,10 +114,11 @@ function queueCheck () {
 
 function checkWatchedNodes () {
   for (let elem of watchedNodes) {
-    const position = {
-      left: elem.offsetLeft,
-      top: elem.offsetTop
-    }
+    const top = elem.offsetTop
+    const bottom = top - elem.offsetHeight
+    const left = elem.offsetLeft
+    const right = left - elem.offsetWidth
+    const position = {top, bottom, left, right}
     const prevPosition = elem[secret.position] || {}
     elem[secret.position] = position
 
@@ -134,7 +135,7 @@ function onMove (elem, xDiff, yDiff) {
   const style = elem.style
   const transition = style.transition
   style.transition = ''
-  style.transform = `translate3d(${xDiff}px, ${yDiff}px, 0)`
+  style.transform = `translate(${xDiff}px, ${yDiff}px)`
   requestAnimationFrame(() => {
     style.transition = transition
     style.transform = ''
@@ -194,12 +195,11 @@ function shouldAbsolutePosition (elem) {
 function toAbsolutePosition (elem) {
   const style = elem.style
   const position = elem[secret.position]
-  style.left = `${position.left}px`
-  style.top = `${position.top}px`
+  style.top = style.top || `${position.top}px`
+  style.bottom = style.bottom || `${position.bottom}px`
+  style.left = style.left || `${position.left}px`
+  style.right = style.right || `${position.right}px`
   style.margin = '0'
-  style.width = '-moz-max-content'
-  style.width = '-webkit-max-content'
-  style.width = 'max-content'
   style.position = 'absolute'
 }
 
