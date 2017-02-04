@@ -3,12 +3,11 @@
 const secret = {
   entering: Symbol('during entering animation'),
   leaving: Symbol('during leaving animation'),
-  moveTransition: Symbol('watch move transition'),
   position: Symbol('animated element position'),
   parent: Symbol('parent node of leaving node'),
   listening: Symbol('listening for animationend')
 }
-const watchedNodes = new Set()
+const watchedNodes = new Map()
 let checkQueued = false
 
 function onAnimationEnd (ev) {
@@ -52,12 +51,21 @@ function enterAttribute (animation) {
 
 function leaveAttribute (animation) {
   if (!this[secret.parent]) {
-    watchedNodes.add(this)
-    this.$cleanup(unwatch)
-    this.$cleanup(onLeave, animation)
     this[secret.parent] = this.parentNode
-    registerListener(this)
+    this.$cleanup(onLeave, animation)
   }
+  getPosition(this)
+  registerListener(this)
+}
+
+function getPosition (node) {
+  let position = watchedNodes.get(node)
+  if (!position) {
+    position = {}
+    watchedNodes.set(node, position)
+    node.$cleanup(unwatch)
+  }
+  return position
 }
 
 function registerListener (elem) {
@@ -85,11 +93,9 @@ function onLeave (animation) {
 }
 
 function moveAttribute (transition) {
-  if (!this[secret.moveTransition]) {
-    watchedNodes.add(this)
-    this.$cleanup(unwatch)
-    this[secret.moveTransition] = true
-  }
+  const position = getPosition(this)
+  position.move = true
+
   if (typeof transition === 'object' && transition) {
     transition = 'transform ' + transitionObjectToString(transition)
   } else if (typeof transition === 'string') {
@@ -109,37 +115,43 @@ function queueCheck () {
   if (!checkQueued) {
     checkQueued = true
     requestAnimationFrame(checkWatchedNodes)
+    requestAnimationFrame(moveWatchedNodes)
   }
 }
 
 function checkWatchedNodes () {
-  for (let elem of watchedNodes) {
-    const top = elem.offsetTop
-    const bottom = top - elem.offsetHeight
-    const left = elem.offsetLeft
-    const right = left - elem.offsetWidth
-    const position = {top, bottom, left, right}
-    const prevPosition = elem[secret.position] || {}
-    elem[secret.position] = position
-
-    const xDiff = (prevPosition.left - position.left) || 0
-    const yDiff = (prevPosition.top - position.top) || 0
-    if (elem[secret.moveTransition] && (xDiff || yDiff)) {
-      onMove(elem, xDiff, yDiff)
-    }
-  }
+  watchedNodes.forEach(checkWatchedNode)
   checkQueued = false
 }
 
-function onMove (elem, xDiff, yDiff) {
-  const style = elem.style
-  const transition = style.transition
-  style.transition = ''
-  style.transform = `translate(${xDiff}px, ${yDiff}px)`
-  requestAnimationFrame(() => {
-    style.transition = transition
-    style.transform = ''
-  })
+function checkWatchedNode (position, node) {
+  const prevTop = position.top
+  const prevLeft = position.left
+
+  position.top = node.offsetTop
+  position.bottom = position.top - node.offsetHeight
+  position.left = node.offsetLeft
+  position.right = position.left - node.offsetWidth
+
+  position.xDiff = (prevLeft - position.left) || 0
+  position.yDiff = (prevTop - position.top) || 0
+}
+
+function moveWatchedNodes () {
+  watchedNodes.forEach(moveWatchedNode)
+}
+
+function moveWatchedNode (position, node) {
+  if (position.move) {
+    const style = node.style
+    const transition = style.transition
+    style.transition = ''
+    style.transform = `translate(${position.xDiff}px, ${position.yDiff}px)`
+    requestAnimationFrame(() => {
+      style.transition = transition
+      style.transform = ''
+    })
+  }
 }
 
 function animationObjectToString (animation) {
@@ -194,7 +206,7 @@ function shouldAbsolutePosition (elem) {
 
 function toAbsolutePosition (elem) {
   const style = elem.style
-  const position = elem[secret.position]
+  const position = watchedNodes.get(elem)
   style.top = style.top || `${position.top}px`
   style.bottom = style.bottom || `${position.bottom}px`
   style.left = style.left || `${position.left}px`
