@@ -33,6 +33,7 @@ function animate (elem) {
 }
 animate.$name = 'animate'
 animate.$require = ['attributes']
+animate.$type = ['component', 'content']
 module.exports = animate
 
 function enterAttribute (animation) {
