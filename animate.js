@@ -129,9 +129,9 @@ function checkWatchedNode (position, node) {
   const prevLeft = position.left
 
   position.top = node.offsetTop
-  position.bottom = position.top - node.offsetHeight
   position.left = node.offsetLeft
-  position.right = position.left - node.offsetWidth
+  position.height = node.offsetHeight
+  position.width = node.offsetWidth + 1
 
   position.xDiff = (prevLeft - position.left) || 0
   position.yDiff = (prevTop - position.top) || 0
@@ -208,10 +208,11 @@ function toAbsolutePosition (elem) {
   const style = elem.style
   const position = watchedNodes.get(elem)
   style.top = style.top || `${position.top}px`
-  style.bottom = style.bottom || `${position.bottom}px`
   style.left = style.left || `${position.left}px`
-  style.right = style.right || `${position.right}px`
+  style.width = `${position.width}px`
+  style.height = `${position.height}px`
   style.margin = '0'
+  style.boxSizing = 'border-box'
   style.position = 'absolute'
 }
 
