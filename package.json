@@ -1,6 +1,6 @@
 {
   "name": "@nx-js/animate-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An NX animation middleware, based on standrad CSS animations.",
   "main": "animate.js",
   "author": {
@@ -22,6 +22,6 @@
     "animation"
   ],
   "peerDependencies": {
-    "@nx-js/attributes-middleware": "^1.0.0"
+    "@nx-js/attributes-middleware": "^1.1.0"
   }
 }
